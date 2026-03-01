@@ -1,36 +1,100 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Velora Marketing Site
 
-## Getting Started
+Marketing microsite for **Velora Labs** — AI-native endurance training OS.
+Deployed at [veloralabs.io](https://veloralabs.io).
 
-First, run the development server:
+## Pages
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+| Route | Description |
+|-------|-------------|
+| `/` | Home — hero, value props, Garmin CTA, about |
+| `/product` | Product overview with feature breakdown |
+| `/data` | Data usage & privacy summary (plain English) |
+| `/garmin` | Garmin integration details for Developer Program reviewers |
+| `/contact` | Contact form with Resend email delivery |
+| `/legal/privacy` | Privacy policy |
+| `/legal/terms` | Terms of service |
+
+## Stack
+
+- **Next.js 16** (App Router, TypeScript)
+- **React 19** with server actions and `useActionState`
+- **Tailwind CSS v4** (CSS-first config in `globals.css`)
+- **Resend** (contact form email delivery)
+- **lucide-react** (icons)
+
+## Environment variables
+
+Copy `.env.example` to `.env.local` and fill in:
+
+```env
+RESEND_API_KEY=re_...
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- Get an API key at [resend.com](https://resend.com)
+- Verify your sending domain (`veloralabs.io`) in the Resend dashboard
+- Without `RESEND_API_KEY`, form submissions log to console and return success (safe for local dev)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Local development
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm install
+cp .env.example .env.local   # add RESEND_API_KEY (optional for dev)
+npm run dev
+```
 
-## Learn More
+Open [http://localhost:3000](http://localhost:3000).
 
-To learn more about Next.js, take a look at the following resources:
+## Deploy to Vercel
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Initial deploy
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+npm i -g vercel   # if not installed
+vercel            # from inside velora-site/; framework: Next.js
+```
 
-## Deploy on Vercel
+### Environment variables in Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Project → Settings → Environment Variables:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Key | Value |
+|-----|-------|
+| `RESEND_API_KEY` | Your Resend API key |
+
+### Custom domain (veloralabs.io)
+
+1. Vercel → Project → Settings → **Domains** → Add `veloralabs.io` and `www.veloralabs.io`
+2. Update DNS at your registrar:
+
+| Type | Name | Value |
+|------|------|-------|
+| A | `@` | `76.76.21.21` |
+| CNAME | `www` | `cname.vercel-dns.com` |
+
+Vercel provisions SSL automatically once DNS propagates (< 1 hour typically).
+
+### Production deploy
+
+```bash
+git add .
+git commit -m "feat: initial Velora marketing site"
+git push origin main
+```
+
+Vercel auto-deploys on every push to `main`.
+
+## Design tokens
+
+Defined in `src/app/globals.css` using Tailwind v4's `@theme` block:
+
+| CSS variable | Tailwind class | Value |
+|---|---|---|
+| `--color-background` | `bg-background` | `#090909` |
+| `--color-surface` | `bg-surface` | `#111111` |
+| `--color-surface-raised` | `bg-surface-raised` | `#1c1c1c` |
+| `--color-border` | `border-border` | `#252525` |
+| `--color-foreground` | `text-foreground` | `#f0f0f0` |
+| `--color-muted` | `text-muted` | `#888888` |
+| `--color-accent` | `bg-accent` / `text-accent` | `#6366f1` |
+| `--color-accent-soft` | `text-accent-soft` | `#818cf8` |
