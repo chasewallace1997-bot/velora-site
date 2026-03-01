@@ -40,22 +40,23 @@ export async function submitContact(
   const apiKey = process.env.RESEND_API_KEY;
 
   if (!apiKey) {
-    // Dev fallback — log and return success so the UI works without Resend configured
-    console.log("[contact-action] No RESEND_API_KEY — logging submission:", {
-      name,
-      email,
-      org: org || "(none)",
-      isGarmin,
-      message,
-    });
-    return { status: "success" };
+    // Never silently succeed — a missing key means no email is delivered.
+    console.error("[contact-action] RESEND_API_KEY is not set. Email not sent.");
+    return {
+      status: "error",
+      message: "Missing RESEND_API_KEY — email could not be sent. Set the environment variable and redeploy.",
+    };
   }
 
   const resend = new Resend(apiKey);
 
-  const subject = isGarmin
-    ? `[Garmin Integration] Message from ${name}`
-    : `[Velora] Message from ${name}`;
+  const subjectParts = [
+    "[Velora] Contact form",
+    isGarmin ? "· Garmin" : null,
+    org ? `· ${org}` : null,
+    `· ${name}`,
+  ].filter(Boolean);
+  const subject = subjectParts.join(" ");
 
   const body = [
     `Name: ${name}`,
@@ -72,15 +73,18 @@ export async function submitContact(
   try {
     await resend.emails.send({
       from: "Velora Contact Form <contact@veloralabs.io>",
-      to: "contact@veloralabs.io",
+      to: "chasewallace1997@gmail.com",
       replyTo: email,
       subject,
       text: body,
     });
 
+    console.log(`[contact-action] Email delivered — from: ${email}, garmin: ${isGarmin}`);
     return { status: "success" };
   } catch (err) {
-    console.error("[contact-action] Resend error:", err);
+    // Log the error class/message but not the user's message body or personal details.
+    const errMsg = err instanceof Error ? err.message : String(err);
+    console.error(`[contact-action] Resend send failed: ${errMsg}`);
     return {
       status: "error",
       message:
