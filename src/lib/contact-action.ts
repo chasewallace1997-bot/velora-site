@@ -73,7 +73,7 @@ export async function submitContact(
   try {
     await resend.emails.send({
       from: "Velora Contact Form <contact@veloralabs.io>",
-      to: "chasewallace1997@gmail.com",
+      to: "contact@veloralabs.io",
       replyTo: email,
       subject,
       text: body,
